@@ -1,4 +1,4 @@
-set(PXR_PACKAGE UsdInteractive)
+set(PXR_PACKAGE usdInteractive)
 
 pxr_plugin(${PXR_PACKAGE}
     LIBRARIES
@@ -6,6 +6,7 @@ pxr_plugin(${PXR_PACKAGE}
         sdf
         usd
         vt
+        usdGeom
 
     INCLUDE_DIRS
         ${Boost_INCLUDE_DIRS}
@@ -15,9 +16,12 @@ pxr_plugin(${PXR_PACKAGE}
         api.h
 
     PUBLIC_CLASSES
-        simple
-        complex
-        paramsAPI
+        preliminary_Action
+        preliminary_AnchoringAPI
+        preliminary_Behavior
+        preliminary_ReferenceImage
+        preliminary_Text
+        preliminary_Trigger
         tokens
 
     PYTHON_CPPFILES
@@ -27,14 +31,16 @@ pxr_plugin(${PXR_PACKAGE}
         __init__.py
 
     PYMODULE_CPPFILES
-        module.cpp
-        wrapComplex.cpp
-        wrapParamsAPI.cpp
-        wrapSimple.cpp
+        wrapPreliminary_Action
+        wrapPreliminary_AnchoringAPI
+        wrapPreliminary_Behavior
+        wrapPreliminary_ReferenceImage
+        wrapPreliminary_Text
+        wrapPreliminary_Trigger
         wrapTokens.cpp        
 
     RESOURCE_FILES
         generatedSchema.usda
         plugInfo.json
-        schema.usda:UsdInteractive/schema.usda
+        schema.usda:usdInteractive/schema.usda
 )

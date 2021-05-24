@@ -16,7 +16,7 @@ TF_REGISTRY_FUNCTION(TfScriptModuleLoader) {
         TfToken("vt")
     };
     TfScriptModuleLoader::GetInstance().
-        RegisterLibrary(TfToken("UsdInteractive"), TfToken("pxr.UsdInteractive"), reqs);
+        RegisterLibrary(TfToken("usdInteractive"), TfToken("pxr.UsdInteractive"), reqs);
 }
 
 PXR_NAMESPACE_CLOSE_SCOPE

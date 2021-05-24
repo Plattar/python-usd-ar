@@ -1,6 +1,6 @@
-from . import _UsdInteractive
+from . import _usdInteractive
 from pxr import Tf
-Tf.PrepareModule(_UsdInteractive, locals())
+Tf.PrepareModule(_usdInteractive, locals())
 del Tf
 
 try:
