@@ -28,7 +28,7 @@ del Tf
 
 try:
     from . import __DOC
-    __DOC.Execute(locals())
+    __DOC.Execute(locals()) 
     del __DOC
 except Exception:
     pass

@@ -5,13 +5,11 @@
 # AR Features.
 FROM plattar/python-usd:version-21.05-slim-buster
 
-ENV USD_ALT_BUILD_PATH="/usr/src/app/usd"
-
 LABEL MAINTAINER PLATTAR(www.plattar.com)
 
 WORKDIR /usr/src/app
 
-COPY /ARSchemaDefinitions /usr/src/app/ARSchemaDefinitions
+COPY /usdz_schemas /usr/src/app/usdz_schemas
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	git \
@@ -25,10 +23,42 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	libxi-dev \
 	zlib1g-dev && \
 	rm -rf /var/lib/apt/lists/* && \
+	# Clone the USD Repository
 	git clone https://github.com/PixarAnimationStudios/USD usdsrc && \
 	cd usdsrc && git checkout tags/v${USD_VERSION} && cd ../ && \
-	cp -a /usr/src/app/ARSchemaDefinitions/UsdInteractive/ usdsrc/extras/usd/examples/ && \
-	cp -a /usr/src/app/ARSchemaDefinitions/UsdPhysics/ usdsrc/extras/usd/examples/ && \
-	echo "add_subdirectory(UsdInteractive)" >> usdsrc/extras/usd/examples/CMakeLists.txt && \
-	echo "add_subdirectory(UsdPhysics)" >> usdsrc/extras/usd/examples/CMakeLists.txt
-#python usdsrc/build_scripts/build_usd.py -v --examples --no-usdview ${USD_ALT_BUILD_PATH}
+	# Copy the AR Schema Components into the examples folder
+	cp -a /usr/src/app/usdz_schemas/usdInteractive/ usdsrc/extras/usd/examples/ && \
+	cp -a /usr/src/app/usdz_schemas/usdPhysics/ usdsrc/extras/usd/examples/ && \
+	# Use usdGenSchema to Generate all CPP source files that will be built
+	cd usdsrc/extras/usd/examples/usdInteractive && usdGenSchema schema.usda . && cd /usr/src/app && \
+	cd usdsrc/extras/usd/examples/usdPhysics && usdGenSchema schema.usda . && cd /usr/src/app && \
+	# Add the directories into the CMakeLists.txt so everything gets built
+	echo "add_subdirectory(usdInteractive)" >> usdsrc/extras/usd/examples/CMakeLists.txt && \
+	echo "add_subdirectory(usdPhysics)" >> usdsrc/extras/usd/examples/CMakeLists.txt && \
+	# Remove the old USD installation
+	rm -rf ${USD_BUILD_PATH} && \
+	# build a new version with our new schemas
+	python usdsrc/build_scripts/build_usd.py -v --examples --no-usdview ${USD_BUILD_PATH} && \
+	# remove source code as we don't need it anymore
+	rm -rf usdsrc && \
+	rm -rf usdz_schemas && \
+	# remove build files we no longer need to save space
+	rm -rf ${USD_BUILD_PATH}/build && \
+	rm -rf ${USD_BUILD_PATH}/cmake && \
+	rm -rf ${USD_BUILD_PATH}/pxrConfig.cmake && \
+	rm -rf ${USD_BUILD_PATH}/share && \
+	rm -rf ${USD_BUILD_PATH}/src && \
+	# remove packages we no longer need/require
+	# this keeps the container as small as possible
+	# if others need them, they can install when extending
+	apt-get purge -y git \
+	build-essential \
+	cmake \
+	nasm \
+	libglew-dev \
+	libxrandr-dev \
+	libxinerama-dev \
+	libxi-dev \
+	zlib1g-dev && \
+	apt autoremove -y && \
+	apt-get autoclean -y

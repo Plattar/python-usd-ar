@@ -1,11 +1,12 @@
-set(PXR_PACKAGE usdSchemaExamples)
+set(PXR_PACKAGE UsdPhysics)
 
-pxr_plugin(${PXR_PACKAGE} 
+pxr_plugin(${PXR_PACKAGE}
     LIBRARIES
         tf
         sdf
         usd
         vt
+        usdGeom
 
     INCLUDE_DIRS
         ${Boost_INCLUDE_DIRS}
@@ -36,6 +37,5 @@ pxr_plugin(${PXR_PACKAGE}
     RESOURCE_FILES
         generatedSchema.usda
         plugInfo.json
-        schema.usda:usdSchemaExamples/schema.usda
+        schema.usda:usdPhysics/schema.usda
 )
-   
