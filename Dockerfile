@@ -29,18 +29,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	git clone https://github.com/PixarAnimationStudios/USD usdsrc && \
 	cd usdsrc && git checkout tags/v${USD_VERSION} && cd ../ && \
 	# Copy the AR Schema Components into the examples folder
-	cp -a /usr/src/app/${USD_SCHEMA_FOLDER}/usdInteractive/ usdsrc/extras/usd/examples/ && \
-	cp -a /usr/src/app/${USD_SCHEMA_FOLDER}/usdPhysics/ usdsrc/extras/usd/examples/ && \
+	cp -a /usr/src/app/${USD_SCHEMA_FOLDER}/usdInteractive/ usdsrc/pxr/usd/ && \
+	cp -a /usr/src/app/${USD_SCHEMA_FOLDER}/usdPhysics/ usdsrc/pxr/usd/ && \
 	# Use usdGenSchema to Generate all CPP source files that will be built
-	cd usdsrc/extras/usd/examples/usdInteractive && usdGenSchema schema.usda . && cd /usr/src/app && \
-	cd usdsrc/extras/usd/examples/usdPhysics && usdGenSchema schema.usda . && cd /usr/src/app && \
+	cd usdsrc/pxr/usd/usdInteractive && usdGenSchema schema.usda . && cd /usr/src/app && \
+	cd usdsrc/pxr/usd/usdPhysics && usdGenSchema schema.usda . && cd /usr/src/app && \
 	# Add the directories into the CMakeLists.txt so everything gets built
-	echo "add_subdirectory(usdInteractive)" >> usdsrc/extras/usd/examples/CMakeLists.txt && \
-	echo "add_subdirectory(usdPhysics)" >> usdsrc/extras/usd/examples/CMakeLists.txt && \
+	echo "add_subdirectory(usdInteractive)" >> usdsrc/pxr/usd/CMakeLists.txt && \
+	echo "add_subdirectory(usdPhysics)" >> usdsrc/pxr/usd/CMakeLists.txt && \
 	# Remove the old USD installation
 	rm -rf ${USD_BUILD_PATH} && \
 	# build a new version with our new schemas
-	python usdsrc/build_scripts/build_usd.py -v --examples --no-usdview ${USD_BUILD_PATH} && \
+	python usdsrc/build_scripts/build_usd.py -v --no-examples --no-usdview ${USD_BUILD_PATH} && \
 	# remove source code as we don't need it anymore
 	rm -rf usdsrc && \
 	rm -rf ${USD_SCHEMA_FOLDER} && \

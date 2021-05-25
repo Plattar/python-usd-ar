@@ -31,12 +31,13 @@ pxr_plugin(${PXR_PACKAGE}
         __init__.py
 
     PYMODULE_CPPFILES
-        wrapPreliminary_Action
-        wrapPreliminary_AnchoringAPI
-        wrapPreliminary_Behavior
-        wrapPreliminary_ReferenceImage
-        wrapPreliminary_Text
-        wrapPreliminary_Trigger
+        module.cpp
+        wrapPreliminary_Action.cpp
+        wrapPreliminary_AnchoringAPI.cpp
+        wrapPreliminary_Behavior.cpp
+        wrapPreliminary_ReferenceImage.cpp
+        wrapPreliminary_Text.cpp
+        wrapPreliminary_Trigger.cpp
         wrapTokens.cpp        
 
     RESOURCE_FILES

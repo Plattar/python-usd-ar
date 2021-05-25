@@ -31,12 +31,13 @@ pxr_plugin(${PXR_PACKAGE}
         __init__.py
 
     PYMODULE_CPPFILES
-        wrapPreliminary_InfiniteColliderPlane
-        wrapPreliminary_PhysicsColliderAPI
-        wrapPreliminary_PhysicsForce
-        wrapPreliminary_PhysicsGravitationalForce
-        wrapPreliminary_PhysicsMaterialAPI
-        wrapPreliminary_PhysicsRigidBodyAPI
+        module.cpp
+        wrapPreliminary_InfiniteColliderPlane.cpp
+        wrapPreliminary_PhysicsColliderAPI.cpp
+        wrapPreliminary_PhysicsForce.cpp
+        wrapPreliminary_PhysicsGravitationalForce.cpp
+        wrapPreliminary_PhysicsMaterialAPI.cpp
+        wrapPreliminary_PhysicsRigidBodyAPI.cpp
         wrapTokens.cpp        
 
     RESOURCE_FILES
