@@ -7,9 +7,11 @@ FROM plattar/python-usd:version-21.05-slim-buster
 
 LABEL MAINTAINER PLATTAR(www.plattar.com)
 
+ENV USD_SCHEMA_FOLDER="usd_schemas"
+
 WORKDIR /usr/src/app
 
-COPY /usdz_schemas /usr/src/app/usdz_schemas
+COPY /${USD_SCHEMA_FOLDER} /usr/src/app/${USD_SCHEMA_FOLDER}
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	git \
@@ -27,8 +29,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	git clone https://github.com/PixarAnimationStudios/USD usdsrc && \
 	cd usdsrc && git checkout tags/v${USD_VERSION} && cd ../ && \
 	# Copy the AR Schema Components into the examples folder
-	cp -a /usr/src/app/usdz_schemas/usdInteractive/ usdsrc/extras/usd/examples/ && \
-	cp -a /usr/src/app/usdz_schemas/usdPhysics/ usdsrc/extras/usd/examples/ && \
+	cp -a /usr/src/app/${USD_SCHEMA_FOLDER}/usdInteractive/ usdsrc/extras/usd/examples/ && \
+	cp -a /usr/src/app/${USD_SCHEMA_FOLDER}/usdPhysics/ usdsrc/extras/usd/examples/ && \
 	# Use usdGenSchema to Generate all CPP source files that will be built
 	cd usdsrc/extras/usd/examples/usdInteractive && usdGenSchema schema.usda . && cd /usr/src/app && \
 	cd usdsrc/extras/usd/examples/usdPhysics && usdGenSchema schema.usda . && cd /usr/src/app && \
@@ -41,7 +43,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	python usdsrc/build_scripts/build_usd.py -v --examples --no-usdview ${USD_BUILD_PATH} && \
 	# remove source code as we don't need it anymore
 	rm -rf usdsrc && \
-	rm -rf usdz_schemas && \
+	rm -rf ${USD_SCHEMA_FOLDER} && \
 	# remove build files we no longer need to save space
 	rm -rf ${USD_BUILD_PATH}/build && \
 	rm -rf ${USD_BUILD_PATH}/cmake && \
