@@ -16,9 +16,12 @@ pxr_plugin(${PXR_PACKAGE}
         api.h
 
     PUBLIC_CLASSES
-        simple
-        complex
-        paramsAPI
+        preliminary_InfiniteColliderPlane
+        preliminary_PhysicsColliderAPI
+        preliminary_PhysicsForce
+        preliminary_PhysicsGravitationalForce
+        preliminary_PhysicsMaterialAPI
+        preliminary_PhysicsRigidBodyAPI
         tokens
 
     PYTHON_CPPFILES
@@ -28,10 +31,12 @@ pxr_plugin(${PXR_PACKAGE}
         __init__.py
 
     PYMODULE_CPPFILES
-        module.cpp
-        wrapComplex.cpp
-        wrapParamsAPI.cpp
-        wrapSimple.cpp
+        wrapPreliminary_InfiniteColliderPlane
+        wrapPreliminary_PhysicsColliderAPI
+        wrapPreliminary_PhysicsForce
+        wrapPreliminary_PhysicsGravitationalForce
+        wrapPreliminary_PhysicsMaterialAPI
+        wrapPreliminary_PhysicsRigidBodyAPI
         wrapTokens.cpp        
 
     RESOURCE_FILES
