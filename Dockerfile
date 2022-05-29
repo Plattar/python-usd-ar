@@ -3,7 +3,7 @@
 # Unlike the python-usd container, python-usd-ar also contains the Schema
 # Definitions for ARKit and is useful for generating USDZ files with various
 # AR Features.
-FROM plattar/python-usd:version-21.02-slim-buster
+FROM plattar/python-usd:version-22.05a-slim-buster
 
 LABEL MAINTAINER PLATTAR(www.plattar.com)
 
@@ -18,16 +18,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	build-essential \
 	cmake \
 	nasm \
-	libglew-dev \
 	libxrandr-dev \
 	libxcursor-dev \
 	libxinerama-dev \
-	libxi-dev \
-	zlib1g-dev && \
+	libxi-dev && \
 	rm -rf /var/lib/apt/lists/* && \
 	# Clone the USD Repository
-	git clone https://github.com/PixarAnimationStudios/USD usdsrc && \
-	cd usdsrc && git checkout tags/v${USD_VERSION} && cd ../ && \
+	git clone --branch "v${USD_VERSION}" --depth 1 https://github.com/PixarAnimationStudios/USD.git usdsrc && \
 	# Copy the AR Schema Components into the examples folder
 	cp -a /usr/src/app/${USD_SCHEMA_FOLDER}/usdInteractive/ usdsrc/pxr/usd/ && \
 	cp -a /usr/src/app/${USD_SCHEMA_FOLDER}/usdPhysics/ usdsrc/pxr/usd/ && \
@@ -40,7 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	# Remove the old USD installation
 	rm -rf ${USD_BUILD_PATH} && \
 	# build a new version with our new schemas
-	python usdsrc/build_scripts/build_usd.py -v --no-examples --no-usdview ${USD_BUILD_PATH} && \
+	python usdsrc/build_scripts/build_usd.py --verbose --prefer-safety-over-speed --no-examples --no-tutorials --no-imaging --no-usdview --draco ${USD_BUILD_PATH} && \
 	# remove source code as we don't need it anymore
 	rm -rf usdsrc && \
 	rm -rf ${USD_SCHEMA_FOLDER} && \
@@ -57,10 +54,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	build-essential \
 	cmake \
 	nasm \
-	libglew-dev \
 	libxrandr-dev \
 	libxinerama-dev \
-	libxi-dev \
-	zlib1g-dev && \
+	libxi-dev && \
 	apt autoremove -y && \
 	apt-get autoclean -y
