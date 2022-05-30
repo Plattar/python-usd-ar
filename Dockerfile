@@ -55,6 +55,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	cmake \
 	nasm \
 	libxrandr-dev \
+	libxcursor-dev \
 	libxinerama-dev \
 	libxi-dev && \
 	apt autoremove -y && \
