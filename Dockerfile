@@ -3,7 +3,7 @@
 # Unlike the python-usd container, python-usd-ar also contains the Schema
 # Definitions for ARKit and is useful for generating USDZ files with various
 # AR Features.
-FROM plattar/python-usd:version-22.05a-slim-buster
+FROM plattar/python-usd:version-22.05a-slim-bullseye
 
 LABEL MAINTAINER PLATTAR(www.plattar.com)
 
