@@ -45,7 +45,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	# Remove the old USD installation
 	rm -rf ${USD_BUILD_PATH} && \
 	# build a new version with our new schemas
-	python usdsrc/build_scripts/build_usd.py --prefer-safety-over-speed --no-examples --no-tutorials --no-imaging --no-usdview --no-draco ${USD_BUILD_PATH} && \
+	python3 usdsrc/build_scripts/build_usd.py --prefer-speed-over-safety --no-examples --no-tutorials --no-imaging --no-usdview --no-draco --no-docs --no-tests ${USD_BUILD_PATH} && \
 	# remove source code as we don't need it anymore
 	rm -rf usdsrc && \
 	rm -rf ${USD_SCHEMA_FOLDER} && \
