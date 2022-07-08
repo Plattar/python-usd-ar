@@ -3,15 +3,26 @@
 # Unlike the python-usd container, python-usd-ar also contains the Schema
 # Definitions for ARKit and is useful for generating USDZ files with various
 # AR Features.
+# NOTE: As of 30/06/2022 this respository also builds and sets up 
+# usdzconvert tools
+# For more info on usdconvert, visit https://developer.apple.com/augmented-reality/tools/
 FROM plattar/python-usd:version-22.05b-slim-bullseye
 
 LABEL MAINTAINER PLATTAR(www.plattar.com)
 
 ENV USD_SCHEMA_FOLDER="usd_schemas"
+ENV USDZCONVERT_FOLDER="usdzconvert"
+ENV USDZCONVERT_VERSION="0.66"
 
 WORKDIR /usr/src/app
 
+# Update the environment path for USDZ Convert Tools
+ENV USDZCONVERT_BIN_PATH="/usr/src/app/xrutils/${USDZCONVERT_FOLDER}"
+ENV PATH="${PATH}:${USDZCONVERT_BIN_PATH}"
+
+# copy source folders into container
 COPY /${USD_SCHEMA_FOLDER} /usr/src/app/${USD_SCHEMA_FOLDER}
+COPY /${USDZCONVERT_FOLDER} ${USDZCONVERT_BIN_PATH}
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	git \
@@ -34,7 +45,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	# Remove the old USD installation
 	rm -rf ${USD_BUILD_PATH} && \
 	# build a new version with our new schemas
-	python usdsrc/build_scripts/build_usd.py --prefer-safety-over-speed --no-examples --no-tutorials --no-imaging --no-usdview --no-draco ${USD_BUILD_PATH} && \
+	python3 usdsrc/build_scripts/build_usd.py --no-examples --no-tutorials --no-imaging --no-usdview --no-draco --no-docs --no-tests ${USD_BUILD_PATH} && \
 	# remove source code as we don't need it anymore
 	rm -rf usdsrc && \
 	rm -rf ${USD_SCHEMA_FOLDER} && \
