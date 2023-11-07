@@ -6,7 +6,7 @@
 # NOTE: As of 30/06/2022 this respository also builds and sets up 
 # usdzconvert tools
 # For more info on usdconvert, visit https://developer.apple.com/augmented-reality/tools/
-FROM plattar/python-usd:version-22.05b-slim-bullseye
+FROM plattar/python-usd:version-23.11-slim-bullseye
 
 LABEL MAINTAINER PLATTAR(www.plattar.com)
 
@@ -45,7 +45,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	# Remove the old USD installation
 	rm -rf ${USD_BUILD_PATH} && \
 	# build a new version with our new schemas
-	python3 usdsrc/build_scripts/build_usd.py --no-examples --no-tutorials --no-imaging --no-usdview --no-draco --no-docs --no-tests ${USD_BUILD_PATH} && \
+	python3 usdsrc/build_scripts/build_usd.py --no-examples --no-tutorials --no-imaging --no-usdview --no-draco --no-docs --no-tests --no-materialx ${USD_BUILD_PATH} && \
 	# remove source code as we don't need it anymore
 	rm -rf usdsrc && \
 	rm -rf ${USD_SCHEMA_FOLDER} && \
