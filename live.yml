@@ -1,10 +1,9 @@
-version: "3.9"
 services:
   plattar-usd-ar:
     build: .
     container_name: plattar-usd-ar
-    image: plattar/python-usd-ar:latest
-    command: 
+    image: ghcr.io/plattar/python-usd-ar:latest
+    command:
       - /bin/sh
       - -c
       - |

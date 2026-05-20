@@ -1,8 +1,18 @@
 #!/bin/sh
 
-# push a local build into dockerhub
-docker tag plattar/python-usd-ar:latest plattar/python-usd-ar:version-$1-slim-bullseye
-docker push plattar/python-usd-ar:version-$1-slim-bullseye
+# Push a local build to GHCR. Usage: ./push.sh <usd-version>
+# Requires `docker login ghcr.io` first.
 
-# revert for future use
-docker tag plattar/python-usd-ar:version-$1-slim-bullseye plattar/python-usd-ar:latest
+set -eu
+
+if [ "$#" -ne 1 ]; then
+	echo "usage: $0 <usd-version>" >&2
+	exit 1
+fi
+
+USD_VERSION="$1"
+IMAGE="ghcr.io/plattar/python-usd-ar"
+
+docker tag "${IMAGE}:latest" "${IMAGE}:version-${USD_VERSION}"
+docker push "${IMAGE}:version-${USD_VERSION}"
+docker tag  "${IMAGE}:version-${USD_VERSION}" "${IMAGE}:latest"

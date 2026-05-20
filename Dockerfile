@@ -1,70 +1,77 @@
-# Create a base from a pre-compiled version of USD tools
-# More info @ https://github.com/Plattar/python-usd
-# Unlike the python-usd container, python-usd-ar also contains the Schema
-# Definitions for ARKit and is useful for generating USDZ files with various
-# AR Features.
-# NOTE: As of 30/06/2022 this respository also builds and sets up 
-# usdzconvert tools
-# For more info on usdconvert, visit https://developer.apple.com/augmented-reality/tools/
-FROM plattar/python-usd:version-22.05b-slim-bullseye
+# syntax=docker/dockerfile:1.7
 
-LABEL MAINTAINER PLATTAR(www.plattar.com)
+# Python USD AR — adds Apple's "Preliminary_" AR schemas on top of python-usd.
+#
+# These schemas (Preliminary_AnchoringAPI, Preliminary_Behavior, Preliminary_Trigger,
+# Preliminary_Action, Preliminary_ReferenceImage, Preliminary_Text) come from Apple's
+# USDZ Schemas for AR addendum and are still not upstreamed into OpenUSD, so they
+# have to be code-generated and compiled into libusd at build time.
+#
+# See: https://developer.apple.com/documentation/arkit/usdz_schemas_for_ar
+ARG USD_VERSION=26.05
+FROM ghcr.io/plattar/python-usd:version-${USD_VERSION}
 
-ENV USD_SCHEMA_FOLDER="usd_schemas"
-ENV USDZCONVERT_FOLDER="usdzconvert"
-ENV USDZCONVERT_VERSION="0.66"
+LABEL org.opencontainers.image.source="https://github.com/Plattar/python-usd-ar"
+LABEL org.opencontainers.image.description="Pixar OpenUSD with Apple's Preliminary_* AR schemas compiled in"
+LABEL org.opencontainers.image.licenses="Apache-2.0"
+LABEL org.opencontainers.image.vendor="Plattar"
+
+# USD_VERSION, USD_BUILD_PATH, USD_BIN_PATH, USD_LIB_PATH, USD_PLUGIN_PATH,
+# PATH, LD_LIBRARY_PATH and PYTHONPATH are inherited from the python-usd base.
+
+ENV USD_SCHEMA_FOLDER=usd_schemas
 
 WORKDIR /usr/src/app
 
-# Update the environment path for USDZ Convert Tools
-ENV USDZCONVERT_BIN_PATH="/usr/src/app/xrutils/${USDZCONVERT_FOLDER}"
-ENV PATH="${PATH}:${USDZCONVERT_BIN_PATH}"
+COPY ${USD_SCHEMA_FOLDER}/ /usr/src/app/${USD_SCHEMA_FOLDER}/
 
-# copy source folders into container
-COPY /${USD_SCHEMA_FOLDER} /usr/src/app/${USD_SCHEMA_FOLDER}
-COPY /${USDZCONVERT_FOLDER} ${USDZCONVERT_BIN_PATH}
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-	git \
-	build-essential \
-	cmake \
-	nasm \
-	libxrandr-dev \
-	libxcursor-dev \
-	libxinerama-dev \
-	libxi-dev && \
-	rm -rf /var/lib/apt/lists/* && \
-	# Clone the USD Repository
-	git clone --branch "v${USD_VERSION}" --depth 1 https://github.com/PixarAnimationStudios/USD.git usdsrc && \
-	# Copy the AR Schema Components into the examples folder
-	cp -a /usr/src/app/${USD_SCHEMA_FOLDER}/usdInteractive/ usdsrc/pxr/usd/ && \
-	# Use usdGenSchema to Generate all CPP source files that will be built
-	cd usdsrc/pxr/usd/usdInteractive && usdGenSchema schema.usda . && cd /usr/src/app && \
-	# Add the directories into the CMakeLists.txt so everything gets built
-	echo "add_subdirectory(usdInteractive)" >> usdsrc/pxr/usd/CMakeLists.txt && \
-	# Remove the old USD installation
-	rm -rf ${USD_BUILD_PATH} && \
-	# build a new version with our new schemas
-	python3 usdsrc/build_scripts/build_usd.py --no-examples --no-tutorials --no-imaging --no-usdview --no-draco --no-docs --no-tests ${USD_BUILD_PATH} && \
-	# remove source code as we don't need it anymore
-	rm -rf usdsrc && \
-	rm -rf ${USD_SCHEMA_FOLDER} && \
-	# remove build files we no longer need to save space
-	rm -rf ${USD_BUILD_PATH}/build && \
-	rm -rf ${USD_BUILD_PATH}/cmake && \
-	rm -rf ${USD_BUILD_PATH}/pxrConfig.cmake && \
-	rm -rf ${USD_BUILD_PATH}/share && \
-	rm -rf ${USD_BUILD_PATH}/src && \
-	# remove packages we no longer need/require
-	# this keeps the container as small as possible
-	# if others need them, they can install when extending
-	apt-get purge -y git \
-	build-essential \
-	cmake \
-	nasm \
-	libxrandr-dev \
-	libxcursor-dev \
-	libxinerama-dev \
-	libxi-dev && \
-	apt autoremove -y && \
-	apt-get autoclean -y
+RUN set -eux; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends \
+		git \
+		ca-certificates \
+		build-essential \
+		cmake \
+		nasm \
+		libxrandr-dev \
+		libxcursor-dev \
+		libxinerama-dev \
+		libxi-dev; \
+	rm -rf /var/lib/apt/lists/*; \
+	git clone --branch "v${USD_VERSION}" --depth 1 https://github.com/PixarAnimationStudios/OpenUSD.git usdsrc; \
+	# Drop the Apple schema package into the OpenUSD source tree
+	cp -a /usr/src/app/${USD_SCHEMA_FOLDER}/usdInteractive/ usdsrc/pxr/usd/; \
+	# Use the inherited usdGenSchema (from the python-usd base) to turn schema.usda
+	# into C++ source. Done before re-running build_usd.py so the new sources get picked up.
+	(cd usdsrc/pxr/usd/usdInteractive && usdGenSchema schema.usda .); \
+	echo "add_subdirectory(usdInteractive)" >> usdsrc/pxr/usd/CMakeLists.txt; \
+	# Rebuild USD into the same prefix. boost/tbb/oneTBB are already present and
+	# get skipped by build_usd.py; only USD itself is recompiled (with the new schema).
+	python3 usdsrc/build_scripts/build_usd.py \
+		--no-examples \
+		--no-tutorials \
+		--no-imaging \
+		--no-usdview \
+		--no-draco \
+		--no-materialx \
+		${USD_BUILD_PATH}; \
+	rm -rf usdsrc; \
+	rm -rf /usr/src/app/${USD_SCHEMA_FOLDER}; \
+	rm -rf \
+		${USD_BUILD_PATH}/build \
+		${USD_BUILD_PATH}/cmake \
+		${USD_BUILD_PATH}/pxrConfig.cmake \
+		${USD_BUILD_PATH}/share \
+		${USD_BUILD_PATH}/src; \
+	apt-get purge -y \
+		git \
+		build-essential \
+		cmake \
+		nasm \
+		libxrandr-dev \
+		libxcursor-dev \
+		libxinerama-dev \
+		libxi-dev; \
+	apt-get autoremove -y; \
+	apt-get autoclean -y; \
+	rm -rf /var/lib/apt/lists/*
